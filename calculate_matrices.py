@@ -19,7 +19,7 @@ def compute_W(W_adj):
     return W
 
 W = compute_W(W_adj)
-print(f'W: {W}')
+#print(f'W: {W}')
 
 def compute_Zt(t):
     Zt = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
@@ -52,16 +52,16 @@ def calc_Q():
     for i in range(n):
         Zt_i = compute_Zt(i)
         Zt_combined[i] = Zt_i
-    print(f'Zt_combined:    {Zt_combined}')
+    #print(f'Zt_combined:    {Zt_combined}')
 
     Z_total = np.matmul(np.transpose(Zt_combined), Zt_combined)
-    print(f'Z_total:    {Z_total}')
+    #print(f'Z_total:    {Z_total}')
     
     I_n = np.identity(n)
     J_n_1 = np.ones(shape = (n-1, n-1))
 
     tensor_product = np.kron(I_n, J_n_1)
-    print(f'tensor_product:    {tensor_product}')
+    #print(f'tensor_product:    {tensor_product}')
 
     Q = A*(Z_total + tensor_product)
     print(f'Q:    {Q}')
@@ -78,7 +78,19 @@ def calc_G():
     J_n = np.ones(shape = (n, 1))
     part2 = np.kron(J_n, J_n_1)
 
-    g = 
+    g = W - 2*A*k*part1 + 2*A*part2
+
+    print(f'g: {g}')
+
+def find_coefficients(Q, g):
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            
 
 
 calc_Q()
+calc_G()
+c = 2*A*(n-1) + 2*A*(k**2)
+print(f'c:  {c}')
