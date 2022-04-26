@@ -3,10 +3,23 @@ import numpy as np
 n, k = 3, 2
 A = 100
 X = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
-#print(X)
+W_adj = np.array([[0, 2, 5], [3, 0, 4], [3, 6, 0]])
 
-def compute_W(G):
+def compute_W(W_adj):
+    W = np.zeros(shape = (n*(n-1), 1))
     
+    k=0
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            else:
+                W[k] = W_adj[i][j]
+                k += 1
+    return W
+
+W = compute_W(W_adj)
+print(f'W: {W}')
 
 def compute_Zt(t):
     Zt = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
