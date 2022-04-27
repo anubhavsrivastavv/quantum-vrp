@@ -1,7 +1,9 @@
 import numpy as np
+from collections import defaultdict 
+from dwave.system import DWaveSampler, EmbeddingComposite
 
 n, k = 3, 2
-A = 100
+A = 20
 X = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
 W_adj = np.array([[0, 2, 5], [3, 0, 4], [3, 6, 0]])
 
@@ -65,6 +67,7 @@ def calc_Q():
 
     Q = A*(Z_total + tensor_product)
     print(f'Q:    {Q}')
+    return Q
 
 def calc_G():
     Zt_0 = compute_Zt(0)
@@ -81,16 +84,58 @@ def calc_G():
     g = W - 2*A*k*part1 + 2*A*part2
 
     print(f'g: {g}')
+    return g
 
 def find_coefficients(Q, g):
+    # for i in range(n):
+    #     for j in range(n):
+    #         if i == j:
+    #             continue
+
+    #Take sum of Q about diagonal
+    for i in range(n*(n-1)):
+        for j in range(i+1, n*(n-1)):
+            Q[i][j] += Q[j][i]
+            Q[j][i] = 0
+
+    for i in range(n*(n-1)):
+        Q[i][i] += g[i]
+
+    print('Final QUBO matrix is:    ', Q)
+    return Q
+
+def index_to_x_ij(index):
+    counter = 0
     for i in range(n):
         for j in range(n):
             if i == j:
                 continue
-            
+            else:
+                if counter == index:
+                    return 'x'+str(i)+str(j)
+                counter += 1
+
+def convert_to_dict(qubo_matrix):
+    qubo = defaultdict(float)
+    for i in range(n*(n-1)):
+        for j in range(i, n*(n-1)):
+            qubo[(index_to_x_ij(i), index_to_x_ij(j))] = qubo_matrix[i][j]
+    print(qubo)
+    return qubo
 
 
-calc_Q()
-calc_G()
+
+Q = calc_Q()
+g = calc_G()
 c = 2*A*(n-1) + 2*A*(k**2)
-print(f'c:  {c}')
+#print(f'c:  {c}')
+qubo_matrix = find_coefficients(Q, g)
+qubo = convert_to_dict(qubo_matrix)
+
+sampler = EmbeddingComposite(DWaveSampler())
+sampleset = sampler.sample_qubo(qubo, num_reads = 100)
+#sampleset = sampler.sample_qubo(qubo_matrix, num_reads = 10)
+
+print()
+print("-----------------Output-----------------")
+print(sampleset)
