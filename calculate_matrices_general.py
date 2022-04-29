@@ -1,37 +1,22 @@
 import numpy as np
 from collections import defaultdict 
 from dwave.system import DWaveSampler, EmbeddingComposite
-import networkx as nx
-import matplotlib.pyplot as plt
-import pandas as pd
 
-def plot_graph(G):
-    nx.draw_networkx(G)
-    plt.show()
+n, k = 3, 2
 
-#n, k = 3, 2
-n, k = 4, 2
-#n, k = 4, 3
-
-A = 100
+A = 20
 X = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
-#W_adj = np.array([[0, 2, 5], [3, 0, 4], [3, 6, 0]])
-W_adj = np.array([[0, 36.84, 5.06, 30.63], [36.84, 0, 24.55, 63.22], [5.06, 24.55, 0, 15.50], [30.63, 63.22, 15.50, 0]])
-
-#NetworkX graph creation and plotting
-#G_base = nx.from_numpy_matrix(np.asmatrix(W_adj))
-labels = [i for i in range(n)]
-A2 = pd.DataFrame(W_adj, index=labels, columns=labels)
-G_base = nx.from_pandas_adjacency(A2, create_using=nx.DiGraph())
-plot_graph(G_base)
+W_adj = np.array([[0, 2, 5], [3, 0, 4], [3, 6, 0]])
+num_edges = np.count_nonzero(W_adj)
+print(f'num_edges:  {num_edges}')
 
 def compute_W(W_adj):
-    W = np.zeros(shape = (n*(n-1), 1))
+    W = np.zeros(shape = (num_edges, 1))
     
     k=0
     for i in range(n):
         for j in range(n):
-            if i == j:
+            if W_adj[i][j] == 0:        #Covers both self self loop and non existing edges
                 continue
             else:
                 W[k] = W_adj[i][j]
@@ -42,12 +27,12 @@ W = compute_W(W_adj)
 #print(f'W: {W}')
 
 def compute_Zt(t):
-    Zt = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
+    Zt = np.zeros(shape = (num_edges, 1))
 
     k=0
     for i in range(n):
         for j in range(n):
-            if i == j:
+            if W_adj[i][j] == 0:
                 continue
             else:
                 if j == t:
@@ -142,6 +127,7 @@ def convert_to_dict(qubo_matrix):
     return qubo
 
 
+
 Q = calc_Q()
 g = calc_G()
 c = 2*A*(n-1) + 2*A*(k**2)
@@ -156,18 +142,3 @@ sampleset = sampler.sample_qubo(qubo, num_reads = 100)
 print()
 print("-----------------Output-----------------")
 print(sampleset)
-best_sol = sampleset.first.sample
-print(best_sol)
-
-sol_adj_matrix = np.zeros(shape = (n, n)) 
-for (key, value) in best_sol.items():
-    src, dst =key[1], key[2]
-    if value == 1:
-        sol_adj_matrix[int(src)][int(dst)] = 1
-
-#NetworkX graph creation and plotting of solution
-#G_base = nx.from_numpy_matrix(np.asmatrix(W_adj))
-labels = [i for i in range(n)]
-A2 = pd.DataFrame(sol_adj_matrix, index=labels, columns=labels)
-G_sol = nx.from_pandas_adjacency(A2, create_using=nx.DiGraph())
-plot_graph(G_sol)
