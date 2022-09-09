@@ -11,12 +11,15 @@ def plot_graph(G):
 
 #n, k = 3, 2
 n, k = 4, 2
-#n, k = 4, 3
+# n, k = 4, 3
+# n, k = 5, 2
 
-A = 100
+
+A = 1000
 X = np.zeros(n*(n-1)).reshape(n*(n-1), 1)
 #W_adj = np.array([[0, 2, 5], [3, 0, 4], [3, 6, 0]])
 W_adj = np.array([[0, 36.84, 5.06, 30.63], [36.84, 0, 24.55, 63.22], [5.06, 24.55, 0, 15.50], [30.63, 63.22, 15.50, 0]])
+# W_adj = np.array([[0, 6.794, 61.653, 24.557, 47.767],[6.794, 0, 87.312, 47.262, 39.477],[61.653, 87.312, 0, 9.711, 42.887],[24.557, 47.262, 9.711, 0, 40.98],[47.767, 39.477, 42.887, 40.98, 0]])
 
 #NetworkX graph creation and plotting
 #G_base = nx.from_numpy_matrix(np.asmatrix(W_adj))
@@ -153,7 +156,7 @@ qubo = convert_to_dict(qubo_matrix)
 sampler = EmbeddingComposite(DWaveSampler())
 sampleset = sampler.sample_qubo(qubo, num_reads = 100)
 
-# Hybrid Sampler access
+# # Hybrid Sampler access
 # sampler = LeapHybridSampler()
 # sampleset = sampler.sample_qubo(qubo)
 

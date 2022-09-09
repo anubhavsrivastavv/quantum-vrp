@@ -160,9 +160,9 @@ qubo = convert_to_dict(qubo_matrix)
 
 #This method for local simulator based solver
 # sampler = QBSolv()
-# sampler = SimulatedAnnealingSampler()
+sampler = SimulatedAnnealingSampler()
 # sampler = TabuSampler()
-sampler = SteepestDescentSolver()
+# sampler = SteepestDescentSolver()
 
 sampleset = sampler.sample_qubo(qubo, num_reads = 100)
 
