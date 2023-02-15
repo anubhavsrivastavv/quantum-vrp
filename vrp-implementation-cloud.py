@@ -4,6 +4,7 @@ from dwave.system import DWaveSampler, EmbeddingComposite, LeapHybridSampler
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
+import dwave.inspector
 
 def plot_graph(G):
     nx.draw_networkx(G)
@@ -151,6 +152,29 @@ c = 2*A*(n-1) + 2*A*(k**2)
 #print(f'c:  {c}')
 qubo_matrix = find_coefficients(Q, g)
 qubo = convert_to_dict(qubo_matrix)
+Q_Dict = dict(qubo)
+"""
+    Create json from the Dict
+"""
+json = '{'
+prev_key = ''
+count = 0
+
+#Sort the keys of dict and store it in list
+keys = Q_Dict.keys()
+sorted_keys = sorted(keys, key=lambda tup: tup[0])
+print(sorted_keys)
+for key in sorted_keys:
+    if key[0] != prev_key:
+        if count != 0:
+            json += '}, '
+        json += key[0]+': {'+key[1]+': '+str(Q_Dict[key])
+        prev_key = key[0]
+    else:
+        json += ', '+key[1]+': '+str(Q_Dict[key])
+    count += 1
+json += '}}'
+print('json: ', json)
 
 # Direct QPU access
 sampler = EmbeddingComposite(DWaveSampler())
@@ -178,3 +202,7 @@ labels = [i for i in range(n)]
 A2 = pd.DataFrame(sol_adj_matrix, index=labels, columns=labels)
 G_sol = nx.from_pandas_adjacency(A2, create_using=nx.DiGraph())
 plot_graph(G_sol)
+
+dwave.inspector.show(sampleset)
+print('chain-strength: ', sampleset.info['embedding_context']['chain_strength'])
+
