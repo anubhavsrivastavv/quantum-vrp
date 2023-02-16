@@ -10,7 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from docplex.mp.model import Model
-from docplex.mp.vartype import VarType
+import docplex.mp.vartype as vartype
 # from docplex.mp.basic import ObjectiveSense
 
 def plot_graph(G, color_map):
@@ -98,6 +98,19 @@ for v in range(n):
 #Each vertex should be covered at least once
 for v in range(n):
     m.add_constraint(m.sum(incoming_variables(v)) >= 1, 'atleast_vehicle_visit_'+str(v))
+
+
+#Subtour elimination
+u = m.integer_var_dict([(k, i) for k in range(K) for i in range(n)], name='u')
+Q, q = 10, 1 #max path length possible, assume 10 for now
+
+for k in range(K):
+    for i in range(n):
+        for j in range(n):
+            if W_adj[i][j] != 0 and j != 0:
+                m.add_constraint(u[(k, i)] - u[(k, j)] + Q * variable_matrix[k][i][j] <= Q - q)
+
+
 
 import json 
 
